@@ -36,12 +36,20 @@ const deleteCard = (req, res) => {
   const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
-    .then(() => res.send({ message: `${messages.cards.deleteCard}` }))
+    .then((card) => {
+      if (card) {
+        res.send({ message: `${messages.cards.deleteCard}` });
+      } else {
+        res
+          .status(statuses.notFound)
+          .send({ message: `${messages.cards.notFound}` });
+      }
+    })
     .catch((error) => {
       if (error.name === 'CastError') {
         return res
-          .status(statuses.notFound)
-          .send({ message: `${messages.cards.notFound}` });
+          .status(statuses.badRequest)
+          .send({ message: `${messages.cards.deleteBadCard}` });
       }
 
       res
@@ -59,7 +67,15 @@ const addLikeCard = (req, res) => {
     // eslint-disable-next-line comma-dangle
     { new: true }
   )
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (card) {
+        res.send(card);
+      } else {
+        res
+          .status(statuses.notFound)
+          .send({ message: `${messages.cards.notFound}` });
+      }
+    })
     .catch((error) => {
       if (error.name === 'CastError') {
         return res
@@ -82,7 +98,15 @@ const deleteLikeCard = (req, res) => {
     // eslint-disable-next-line comma-dangle
     { new: true }
   )
-    .then((card) => res.send(card))
+    .then((card) => {
+      if (card) {
+        res.send(card);
+      } else {
+        res
+          .status(statuses.notFound)
+          .send({ message: `${messages.cards.notFound}` });
+      }
+    })
     .catch((error) => {
       if (error.name === 'CastError') {
         return res
