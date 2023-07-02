@@ -1,12 +1,15 @@
 const User = require('../models/user');
+const { messages, statuses } = require('../utils/constants');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => {
       res.send(users);
     })
-    .catch((error) => {
-      res.status(400).send(error);
+    .catch(() => {
+      res
+        .status(statuses.default)
+        .send({ message: `${messages.shared.serverError}` });
     });
 };
 
@@ -18,7 +21,15 @@ const getUser = (req, res) => {
       res.send(user);
     })
     .catch((error) => {
-      res.status(400).send(error);
+      if (error.name === 'CastError') {
+        return res
+          .status(statuses.notFound)
+          .send({ message: `${messages.users.notFound}` });
+      }
+
+      res
+        .status(statuses.default)
+        .send({ message: `${messages.shared.serverError}` });
     });
 };
 
@@ -29,7 +40,15 @@ const createUser = (req, res) => {
       res.send(user);
     })
     .catch((error) => {
-      res.status(400).send(error);
+      if (error.name === 'ValidationError') {
+        return res
+          .status(statuses.badRequest)
+          .send({ message: `${messages.users.createBadRequest}` });
+      }
+
+      res
+        .status(statuses.default)
+        .send({ message: `${messages.shared.serverError}` });
     });
 };
 
@@ -37,12 +56,24 @@ const updateUser = (req, res) => {
   const { name, about, avatar } = req.body;
   const id = req.user._id;
 
-  User.findByIdAndUpdate(id, { name, about, avatar }, { new: true })
+  User.findByIdAndUpdate(
+    id,
+    { name, about, avatar },
+    { new: true, runValidators: true }
+  )
     .then((user) => {
       res.send(user);
     })
     .catch((error) => {
-      res.status(400).send(error);
+      if (error.name === 'ValidationError') {
+        return res
+          .status(statuses.badRequest)
+          .send({ message: `${messages.users.updateBadRequest}` });
+      }
+
+      res
+        .status(statuses.default)
+        .send({ message: `${messages.shared.serverError}` });
     });
 };
 

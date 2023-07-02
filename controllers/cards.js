@@ -1,12 +1,15 @@
 const Card = require('../models/card');
+const { messages, statuses } = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => {
       res.send(cards);
     })
-    .catch((error) => {
-      res.status(400).send(error);
+    .catch(() => {
+      res
+        .status(statuses.default)
+        .send({ message: `${messages.shared.serverError}` });
     });
 };
 
@@ -17,7 +20,15 @@ const createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((error) => {
-      res.status(400).send(error);
+      if (error.name === 'ValidationError') {
+        return res
+          .status(statuses.badRequest)
+          .send({ message: `${messages.cards.badRequest}` });
+      }
+
+      res
+        .status(statuses.default)
+        .send({ message: `${messages.shared.serverError}` });
     });
 };
 
@@ -25,9 +36,17 @@ const deleteCard = (req, res) => {
   const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
-    .then(() => res.send({ message: 'Пост успешно удалён' }))
+    .then(() => res.send({ message: `${messages.cards.deleteCard}` }))
     .catch((error) => {
-      res.status(400).send(error);
+      if (error.name === 'CastError') {
+        return res
+          .status(statuses.notFound)
+          .send({ message: `${messages.cards.notFound}` });
+      }
+
+      res
+        .status(statuses.default)
+        .send({ message: `${messages.shared.serverError}` });
     });
 };
 
@@ -42,7 +61,15 @@ const addLikeCard = (req, res) => {
   )
     .then((card) => res.send(card))
     .catch((error) => {
-      res.status(400).send(error);
+      if (error.name === 'CastError') {
+        return res
+          .status(statuses.badRequest)
+          .send({ message: `${messages.cards.likeBadRequest}` });
+      }
+
+      res
+        .status(statuses.default)
+        .send({ message: `${messages.shared.serverError}` });
     });
 };
 
@@ -57,7 +84,15 @@ const deleteLikeCard = (req, res) => {
   )
     .then((card) => res.send(card))
     .catch((error) => {
-      res.status(400).send(error);
+      if (error.name === 'CastError') {
+        return res
+          .status(statuses.badRequest)
+          .send({ message: `${messages.cards.likeBadRequest}` });
+      }
+
+      res
+        .status(statuses.default)
+        .send({ message: `${messages.shared.serverError}` });
     });
 };
 
