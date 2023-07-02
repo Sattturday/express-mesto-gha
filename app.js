@@ -13,10 +13,13 @@ const app = express();
 mongoose
   .connect(DATABASE_URL)
   .then(() => {
+    // eslint-disable-next-line no-console
     console.log(`База данных подключена ${DATABASE_URL}`);
   })
   .catch((err) => {
+    // eslint-disable-next-line no-console
     console.log('Ошибка подключения к базе данных');
+    // eslint-disable-next-line no-console
     console.error(err);
   });
 
@@ -39,5 +42,6 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(`Сервер запущен на порту ${PORT}`);
 });
