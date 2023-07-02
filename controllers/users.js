@@ -18,13 +18,19 @@ const getUser = (req, res) => {
 
   User.findById(userId)
     .then((user) => {
-      res.send(user);
+      if (user) {
+        res.send(user);
+      } else {
+        res
+          .status(statuses.notFound)
+          .send({ message: `${messages.users.notFound}` });
+      }
     })
     .catch((error) => {
       if (error.name === 'CastError') {
         return res
-          .status(statuses.notFound)
-          .send({ message: `${messages.users.notFound}` });
+          .status(statuses.badRequest)
+          .send({ message: `${messages.users.badRequest}` });
       }
 
       res
