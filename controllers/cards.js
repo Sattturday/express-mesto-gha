@@ -3,9 +3,7 @@ const { messages, statuses } = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find({})
-    .then((cards) => {
-      res.send(cards);
-    })
+    .then((cards) => res.send(cards))
     .catch(() => {
       res
         .status(statuses.default)
@@ -18,12 +16,13 @@ const createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.send(card))
+    .then((card) => res.status(statuses.created).send(card))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res
+        res
           .status(statuses.badRequest)
-          .send({ message: `${messages.cards.badRequest}` });
+          .send({ message: `${messages.cards.badRequest} ${error.message}` });
+        return;
       }
 
       res
@@ -36,20 +35,20 @@ const deleteCard = (req, res) => {
   const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
-    .then((card) => {
-      if (card) {
-        res.send({ message: `${messages.cards.deleteCard}` });
-      } else {
+    .orFail(new Error('NotValidId'))
+    .then(() => res.send({ message: `${messages.cards.deleteCard}` }))
+    .catch((error) => {
+      if (error.message === 'NotValidId') {
         res
           .status(statuses.notFound)
           .send({ message: `${messages.cards.notFound}` });
+        return;
       }
-    })
-    .catch((error) => {
       if (error.name === 'CastError') {
-        return res
+        res
           .status(statuses.badRequest)
           .send({ message: `${messages.cards.deleteBadCard}` });
+        return;
       }
 
       res
@@ -64,23 +63,22 @@ const addLikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: req.user._id } },
-    // eslint-disable-next-line comma-dangle
     { new: true }
   )
-    .then((card) => {
-      if (card) {
-        res.send(card);
-      } else {
+    .orFail(new Error('NotValidId'))
+    .then((card) => res.send(card))
+    .catch((error) => {
+      if (error.message === 'NotValidId') {
         res
           .status(statuses.notFound)
           .send({ message: `${messages.cards.notFound}` });
+        return;
       }
-    })
-    .catch((error) => {
       if (error.name === 'CastError') {
-        return res
+        res
           .status(statuses.badRequest)
           .send({ message: `${messages.cards.likeBadRequest}` });
+        return;
       }
 
       res
@@ -95,23 +93,23 @@ const deleteLikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: req.user._id } },
-    // eslint-disable-next-line comma-dangle
     { new: true }
   )
-    .then((card) => {
-      if (card) {
-        res.send(card);
-      } else {
+    .orFail(new Error('NotValidId'))
+
+    .then((card) => res.send(card))
+    .catch((error) => {
+      if (error.message === 'NotValidId') {
         res
           .status(statuses.notFound)
           .send({ message: `${messages.cards.notFound}` });
+        return;
       }
-    })
-    .catch((error) => {
       if (error.name === 'CastError') {
-        return res
+        res
           .status(statuses.badRequest)
           .send({ message: `${messages.cards.likeBadRequest}` });
+        return;
       }
 
       res

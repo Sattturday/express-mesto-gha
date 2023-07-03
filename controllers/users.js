@@ -17,20 +17,20 @@ const getUser = (req, res) => {
   const { userId } = req.params;
 
   User.findById(userId)
-    .then((user) => {
-      if (user) {
-        res.send(user);
-      } else {
+    .orFail(new Error('NotValidId'))
+    .then((user) => res.send(user))
+    .catch((error) => {
+      if (error.message === 'NotValidId') {
         res
           .status(statuses.notFound)
           .send({ message: `${messages.users.notFound}` });
+        return;
       }
-    })
-    .catch((error) => {
       if (error.name === 'CastError') {
-        return res
+        res
           .status(statuses.badRequest)
           .send({ message: `${messages.users.badRequest}` });
+        return;
       }
 
       res
@@ -43,13 +43,14 @@ const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      res.send(user);
+      res.status(statuses.created).send(user);
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res
-          .status(statuses.badRequest)
-          .send({ message: `${messages.users.createBadRequest}` });
+        res.status(statuses.badRequest).send({
+          message: `${messages.users.createBadRequest} ${error.message}`,
+        });
+        return;
       }
 
       res
@@ -65,7 +66,6 @@ const updateUser = (req, res) => {
   User.findByIdAndUpdate(
     id,
     { name, about, avatar },
-    // eslint-disable-next-line comma-dangle
     { new: true, runValidators: true }
   )
     .then((user) => {
@@ -73,9 +73,10 @@ const updateUser = (req, res) => {
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res
-          .status(statuses.badRequest)
-          .send({ message: `${messages.users.updateBadRequest}` });
+        res.status(statuses.badRequest).send({
+          message: `${messages.users.updateBadRequest} ${error.message}`,
+        });
+        return;
       }
 
       res

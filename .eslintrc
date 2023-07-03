@@ -2,6 +2,18 @@
   "extends": "airbnb-base",
   "rules": {
     "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "always-multiline",
+        "objects": "always-multiline",
+        "imports": "never",
+        "exports": "never",
+        "functions": "never"
+      }
+    ],
+    "no-console": "off",
+    "operator-linebreak": ["error", "after"],
     "global-require": 0,
     "linebreak-style": 0,
     "no-multiple-empty-lines": 0,
