@@ -1,63 +1,48 @@
+const BadRequestError = require('../errors/BadRequestError');
+const { ConflictError } = require('../errors/ConflictError');
+const NotFoundError = require('../errors/NotFoundError');
 const Card = require('../models/card');
 const { messages, statuses } = require('../utils/constants');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send(cards))
-    .catch(() => {
-      res
-        .status(statuses.default)
-        .send({ message: `${messages.shared.serverError}` });
-    });
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
     .then((card) => res.status(statuses.created).send(card))
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res
-          .status(statuses.badRequest)
-          .send({ message: `${messages.cards.badRequest} ${error.message}` });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError(messages.cards.badRequest));
         return;
       }
-
-      res
-        .status(statuses.default)
-        .send({ message: `${messages.shared.serverError}` });
+      next(err);
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
+  const userId = req.user._id;
 
-  Card.findByIdAndRemove(cardId)
-    .orFail(new Error('NotValidId'))
-    .then(() => res.send({ message: `${messages.cards.deleteCard}` }))
-    .catch((error) => {
-      if (error.message === 'NotValidId') {
-        res
-          .status(statuses.notFound)
-          .send({ message: `${messages.cards.notFound}` });
-        return;
+  Card.findById(cardId)
+    .orFail(new NotFoundError(messages.cards.notFound))
+    .then((card) => {
+      if (userId !== String(card.owner)) {
+        throw new ConflictError(messages.cards.deleteBadCard);
       }
-      if (error.name === 'CastError') {
-        res
-          .status(statuses.badRequest)
-          .send({ message: `${messages.cards.deleteBadCard}` });
-        return;
-      }
-
-      res
-        .status(statuses.default)
-        .send({ message: `${messages.shared.serverError}` });
-    });
+      Card.findByIdAndRemove(cardId)
+        .orFail(new NotFoundError(messages.cards.notFound))
+        .then(() => res.send({ message: `${messages.cards.deleteCard}` }));
+    })
+    .catch(next);
 };
 
-const addLikeCard = (req, res) => {
+const addLikeCard = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findByIdAndUpdate(
@@ -65,29 +50,12 @@ const addLikeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .orFail(new Error('NotValidId'))
+    .orFail(new NotFoundError(messages.cards.notFound))
     .then((card) => res.send(card))
-    .catch((error) => {
-      if (error.message === 'NotValidId') {
-        res
-          .status(statuses.notFound)
-          .send({ message: `${messages.cards.notFound}` });
-        return;
-      }
-      if (error.name === 'CastError') {
-        res
-          .status(statuses.badRequest)
-          .send({ message: `${messages.cards.likeBadRequest}` });
-        return;
-      }
-
-      res
-        .status(statuses.default)
-        .send({ message: `${messages.shared.serverError}` });
-    });
+    .catch(next);
 };
 
-const deleteLikeCard = (req, res) => {
+const deleteLikeCard = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findByIdAndUpdate(
@@ -95,27 +63,9 @@ const deleteLikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .orFail(new Error('NotValidId'))
-
+    .orFail(new NotFoundError(messages.cards.notFound))
     .then((card) => res.send(card))
-    .catch((error) => {
-      if (error.message === 'NotValidId') {
-        res
-          .status(statuses.notFound)
-          .send({ message: `${messages.cards.notFound}` });
-        return;
-      }
-      if (error.name === 'CastError') {
-        res
-          .status(statuses.badRequest)
-          .send({ message: `${messages.cards.likeBadRequest}` });
-        return;
-      }
-
-      res
-        .status(statuses.default)
-        .send({ message: `${messages.shared.serverError}` });
-    });
+    .catch(next);
 };
 
 module.exports = {

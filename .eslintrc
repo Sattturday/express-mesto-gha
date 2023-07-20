@@ -12,6 +12,7 @@
         "functions": "never"
       }
     ],
+    "object-curly-newline": ["error", { "consistent": true }],
     "no-console": "off",
     "operator-linebreak": ["error", "after"],
     "global-require": 0,

@@ -1,10 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
-const { messages, statuses } = require('./utils/constants');
+const { createUser, login } = require('./controllers/auth');
+const auth = require('./middlewares/auth');
+const handleErrors = require('./middlewares/errors');
+const { userCelebrate } = require('./validation/userValidation');
 
 const { PORT = 3000, DATABASE_URL = 'mongodb://127.0.0.1:27017/mestodb' } =
   process.env;
@@ -18,27 +23,21 @@ mongoose
   })
   .catch((err) => {
     console.log('Ошибка подключения к базе данных');
-    console.error(err);
+    console.log(err);
   });
-
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64a144012b7641beeaac1ce7',
-  };
-
-  next();
-});
 
 app.use(helmet());
 app.use(bodyParser.json());
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
+app.use(cookieParser());
 
-app.use((req, res) => {
-  res
-    .status(statuses.notFound)
-    .send({ message: `${messages.shared.notFound}` });
-});
+app.post('/signup', userCelebrate, createUser);
+app.post('/signin', userCelebrate, login);
+
+app.use('/users', auth, userRouter);
+app.use('/cards', auth, cardRouter);
+
+app.use(errors());
+app.use(handleErrors);
 
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
