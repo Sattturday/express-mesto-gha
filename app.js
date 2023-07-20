@@ -10,6 +10,8 @@ const { createUser, login } = require('./controllers/auth');
 const auth = require('./middlewares/auth');
 const handleErrors = require('./middlewares/errors');
 const { userCelebrate } = require('./validation/userValidation');
+const NotFoundError = require('./errors/NotFoundError');
+const { messages } = require('./utils/constants');
 
 const { PORT = 3000, DATABASE_URL = 'mongodb://127.0.0.1:27017/mestodb' } =
   process.env;
@@ -35,6 +37,10 @@ app.post('/signin', userCelebrate, login);
 
 app.use('/users', auth, userRouter);
 app.use('/cards', auth, cardRouter);
+
+app.use((req, res, next) => {
+  next(new NotFoundError(messages.shared.notFound));
+});
 
 app.use(errors());
 app.use(handleErrors);

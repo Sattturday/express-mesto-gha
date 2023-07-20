@@ -7,6 +7,7 @@ const {
   updateProfile,
   updateAvatar,
 } = require('../controllers/users');
+const idCelebrate = require('../validation/idCelebrate');
 
 const {
   profileUpdateCelebrate,
@@ -15,7 +16,7 @@ const {
 
 router.get('/', getUsers);
 router.get('/me', getCurrentUser);
-router.get('/:userId', getUser);
+router.get('/:userId', idCelebrate, getUser);
 router.patch('/me', profileUpdateCelebrate, updateProfile);
 router.patch('/me/avatar', avatarUpdateCelebrate, updateAvatar);
 

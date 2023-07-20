@@ -4,22 +4,31 @@ const User = require('../models/user');
 const { messages, statuses } = require('../utils/constants');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
-const createUser = async (req, res, next) => {
+const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
 
-  try {
-    const hash = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    });
-    res.status(statuses.created).send(user);
-  } catch (err) {
-    next(err);
-  }
+  bcrypt
+    .hash(password, 10)
+    .then((hash) =>
+      User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      })
+    )
+    .then((createdUser) => {
+      const { _id } = createdUser;
+      res.status(statuses.created).send({
+        _id,
+        name,
+        about,
+        avatar,
+        email,
+      });
+    })
+    .catch(next);
 };
 
 const login = (req, res, next) => {

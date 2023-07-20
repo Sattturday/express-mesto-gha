@@ -15,13 +15,7 @@ const getUser = (req, res, next) => {
   User.findById(userId)
     .orFail(new NotFoundError(messages.users.notFound))
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError(`${messages.users.badRequest} в ${err.path}`));
-        return;
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 const getCurrentUser = (req, res, next) => {
