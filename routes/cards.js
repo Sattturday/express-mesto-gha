@@ -8,12 +8,12 @@ const {
   deleteLikeCard,
 } = require('../controllers/cards');
 const { cardCelebrate } = require('../validation/cardValidation');
-const idCelebrate = require('../validation/idCelebrate');
+const { cardIdCelebrate } = require('../validation/idCelebrate');
 
 router.get('/', getCards);
 router.post('/', cardCelebrate, createCard);
-router.delete('/:cardId', idCelebrate, deleteCard);
-router.put('/:cardId/likes', idCelebrate, addLikeCard);
-router.delete('/:cardId/likes', idCelebrate, deleteLikeCard);
+router.delete('/:cardId', cardIdCelebrate, deleteCard);
+router.put('/:cardId/likes', cardIdCelebrate, addLikeCard);
+router.delete('/:cardId/likes', cardIdCelebrate, deleteLikeCard);
 
 module.exports = router;
