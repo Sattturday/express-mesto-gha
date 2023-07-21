@@ -9,12 +9,12 @@ const { messages } = require('../utils/constants');
 
 router.post('/signup', userCelebrate, createUser);
 router.post('/signin', userCelebrate, login);
-router.get('/signout', logout);
 
 router.use(auth);
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
 
+router.get('/signout', logout);
 router.use((req, res, next) => {
   next(new NotFoundError(messages.shared.notFound));
 });
