@@ -8,27 +8,15 @@ const BadRequestError = require('../errors/BadRequestError');
 
 const createUser = (req, res, next) => {
   const {
-    name, about, avatar, email, password,
+    email, password,
   } = req.body;
 
   bcrypt
     .hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
+    .then((hash) => User.create({ email, password: hash }))
     .then((createdUser) => {
       const { _id } = createdUser;
-      res.status(statuses.created).send({
-        _id,
-        name,
-        about,
-        avatar,
-        email,
-      });
+      res.status(statuses.created).send({ _id, email });
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -74,7 +62,12 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
+const logout = (req, res) => {
+  res.clearCookie('jwt').send({ message: messages.shared.clearCookie });
+};
+
 module.exports = {
   createUser,
   login,
+  logout,
 };
