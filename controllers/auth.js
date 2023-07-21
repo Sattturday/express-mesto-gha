@@ -5,19 +5,19 @@ const { messages, statuses } = require('../utils/constants');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
   bcrypt
     .hash(password, 10)
-    .then((hash) =>
-      User.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hash,
-      })
-    )
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((createdUser) => {
       const { _id } = createdUser;
       res.status(statuses.created).send({

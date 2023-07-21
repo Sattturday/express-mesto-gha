@@ -31,7 +31,7 @@ const statuses = {
   default: 500,
 };
 
-const urlRegex = /https?:\/\/(www.)?[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=,]*/;
+const urlRegex = /https?:\/\/(www.)?[a-zA-Z0-9\-._~:/?#[\]@!$&'()*+,;=,]*\.[a-zA-Z]*/;
 
 module.exports = {
   messages,

@@ -1,24 +1,6 @@
 {
   "extends": "airbnb-base",
   "rules": {
-    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
-    "comma-dangle": [
-      "error",
-      {
-        "arrays": "always-multiline",
-        "objects": "always-multiline",
-        "imports": "never",
-        "exports": "never",
-        "functions": "never"
-      }
-    ],
-    "object-curly-newline": ["error", { "consistent": true }],
-    "no-console": "off",
-    "operator-linebreak": ["error", "after"],
-    "implicit-arrow-linebreak": "beside",
-    "global-require": 0,
-    "linebreak-style": 0,
-    "no-multiple-empty-lines": 0,
-    "consistent-return": 0
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }]
   }
 }

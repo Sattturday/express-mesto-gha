@@ -13,8 +13,7 @@ const { userCelebrate } = require('./validation/userValidation');
 const NotFoundError = require('./errors/NotFoundError');
 const { messages } = require('./utils/constants');
 
-const { PORT = 3000, DATABASE_URL = 'mongodb://127.0.0.1:27017/mestodb' } =
-  process.env;
+const { PORT = 3000, DATABASE_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
 const app = express();
 
@@ -24,8 +23,7 @@ mongoose
     console.log(`База данных подключена ${DATABASE_URL}`);
   })
   .catch((err) => {
-    console.log('Ошибка подключения к базе данных');
-    console.log(err);
+    console.log(`Ошибка подключения к базе данных: ${err}`);
   });
 
 app.use(helmet());
