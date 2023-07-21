@@ -49,7 +49,7 @@ const updateProfile = (req, res, next) => {
   User.findByIdAndUpdate(
     id,
     { name, about },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .then((user) => res.send(user))
     .catch(next);
