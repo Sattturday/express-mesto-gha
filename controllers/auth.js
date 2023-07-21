@@ -8,15 +8,27 @@ const BadRequestError = require('../errors/BadRequestError');
 
 const createUser = (req, res, next) => {
   const {
-    email, password,
+    name, about, avatar, email, password,
   } = req.body;
 
   bcrypt
     .hash(password, 10)
-    .then((hash) => User.create({ email, password: hash }))
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((createdUser) => {
       const { _id } = createdUser;
-      res.status(statuses.created).send({ _id, email });
+      res.status(statuses.created).send({
+        _id,
+        name,
+        about,
+        avatar,
+        email,
+      });
     })
     .catch((err) => {
       if (err.code === 11000) {
