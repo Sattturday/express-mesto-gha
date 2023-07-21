@@ -9,7 +9,7 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
-const getUser = (req, res, next) => {
+const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   User.findById(userId)
@@ -52,12 +52,18 @@ const updateProfile = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .then((user) => res.send(user))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError(messages.users.updateBadRequest));
+        return;
+      }
+      next(err);
+    });
 };
 
 module.exports = {
   getUsers,
-  getUser,
+  getUserById,
   getCurrentUser,
   updateProfile,
   updateAvatar,

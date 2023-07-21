@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
@@ -7,7 +8,7 @@ const { errors } = require('celebrate');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { createUser, login } = require('./controllers/auth');
-const auth = require('./middlewares/auth');
+const { auth } = require('./middlewares/auth');
 const handleErrors = require('./middlewares/errors');
 const { userCelebrate } = require('./validation/userValidation');
 const NotFoundError = require('./errors/NotFoundError');

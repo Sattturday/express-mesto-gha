@@ -1,5 +1,5 @@
 const BadRequestError = require('../errors/BadRequestError');
-const { ConflictError } = require('../errors/ConflictError');
+const { ForbiddenError } = require('../errors/ForbiddenError');
 const NotFoundError = require('../errors/NotFoundError');
 const Card = require('../models/card');
 const { messages, statuses } = require('../utils/constants');
@@ -33,7 +33,7 @@ const deleteCard = (req, res, next) => {
     .orFail(new NotFoundError(messages.cards.notFound))
     .then((card) => {
       if (userId !== String(card.owner)) {
-        throw new ConflictError(messages.cards.deleteBadCard);
+        throw new ForbiddenError(messages.cards.forbiddenDeleteCard);
       }
       Card.findByIdAndRemove(cardId)
         .orFail(new NotFoundError(messages.cards.notFound))

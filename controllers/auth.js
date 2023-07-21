@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { messages, statuses } = require('../utils/constants');
 const UnauthorizedError = require('../errors/UnauthorizedError');
+const { ConflictError } = require('../errors/ConflictError');
+const BadRequestError = require('../errors/BadRequestError');
 
 const createUser = (req, res, next) => {
   const {
@@ -28,7 +30,17 @@ const createUser = (req, res, next) => {
         email,
       });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new ConflictError(messages.users.badEmail));
+        return;
+      }
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join(', ')}`));
+        return;
+      }
+      next(err);
+    });
 };
 
 const login = (req, res, next) => {

@@ -17,7 +17,7 @@ const messages = {
     badRequest: 'Переданы некорректные данные при создании карточки.',
     likeBadRequest: 'Переданы некорректные данные для постановки/снятия лайка.',
     deleteCard: 'Карточка успешно удалена.',
-    deleteBadCard: 'Недостаточно прав для удаления этой карточки.',
+    forbiddenDeleteCard: 'Недостаточно прав для удаления этой карточки.',
   },
 };
 
@@ -25,9 +25,9 @@ const statuses = {
   created: 201,
   badRequest: 400,
   badLogin: 401,
-  conflict: 403,
+  forbidden: 403,
   notFound: 404,
-  badEmail: 409,
+  conflict: 409,
   default: 500,
 };
 
